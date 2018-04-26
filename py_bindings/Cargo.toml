@@ -1,10 +1,10 @@
 [package]
 name = "gol_py"
 version = "0.1.0"
-authors = ["<fafhrd91@gmail.com>"]
+authors = ["taylorlee"]
 
 [dependencies]
-game_of_life = { path = "../../game_of_life" }
+game = { path = "../game" }
 
 [dependencies.pyo3]
 version = "0.2.0"
@@ -12,4 +12,4 @@ default-features = false
 
 [lib]
 crate-type = ["cdylib"]
-name = "helloworld"
+name = "gol_py"

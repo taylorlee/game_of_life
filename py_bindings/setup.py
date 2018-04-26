@@ -1,12 +1,16 @@
 from setuptools import setup
 from setuptools_rust import Binding, RustExtension
 
-
-setup(name='hello-rust',
-      version='1.0',
-      rust_extensions=[
-          RustExtension('hello_rust._helloworld',
-                        'Cargo.toml', binding=Binding.PyO3)],
-      packages=['hello_rust'],
-      # rust extensions are not zip safe, just like C-extensions.
-      zip_safe=False)
+setup(
+    name='gol_py',
+    version='1.0',
+    rust_extensions=[
+        RustExtension(
+            'gol_py._gol',
+            'Cargo.toml',
+            binding=Binding.PyO3
+        )
+    ],
+    packages=['gol_py'],
+    zip_safe=False
+)

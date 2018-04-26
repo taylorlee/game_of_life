@@ -1,11 +1,11 @@
 #![feature(proc_macro)]
 
 extern crate pyo3;
-extern crate game_of_life as game;
+extern crate game;
 
 use pyo3::prelude::*;
 
-#[py::modinit(_helloworld)]
+#[py::modinit(_gol)]
 fn init(py: Python, m: &PyModule) -> PyResult<()> {
 
     #[pyfn(m, "setup")]
