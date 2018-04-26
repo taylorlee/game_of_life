@@ -1,0 +1,21 @@
+.grid {
+    border: 1px solid black;
+}
+
+.row {
+
+}
+
+.cell {
+    height: 6px;
+    width: 6px;
+    border-radius: 3px;
+}
+
+.dead {
+    background-color: white;
+}
+
+.alive {
+    background-color: black;
+}
