@@ -16,15 +16,8 @@ fn init(py: Python, m: &PyModule) -> PyResult<()> {
         return Ok(());
     }
 
-    #[pyfn(m, "step", args="*", kwargs="**")]
-    fn step(py: Python, args: &PyTuple, kwargs: Option<&PyDict>) -> PyResult<()> {
-        // unpack args and kwargs
-        let board: &PySet = args.get_item(0).extract()?;
-        let ntimes = match kwargs {
-            Some(kwargs) => kwargs.get_item("ntimes").unwrap().extract()?,
-            None => 1,
-        };
-
+    #[pyfn(m, "step")]
+    fn step(py: Python, board: &PySet, ntimes: usize) -> PyResult<()> {
         // convert PySet to Board
         let mut curr = game::Board::new();
         for _ in 0..board.len() {
