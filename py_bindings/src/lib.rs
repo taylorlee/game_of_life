@@ -24,15 +24,17 @@ fn init(py: Python, m: &PyModule) -> PyResult<()> {
 }
 
 fn do_setup(container: &PySet) {
-    for elem in game::setup().iter() {
+    // load HashSet values into PySet
+    for elem in game::setup() {
         container.add(elem).unwrap();
     }
 }
 
-fn do_step(py: Python, board: &PySet, ntimes: usize) {
+fn do_step(py_gil: Python, board: &PySet, ntimes: usize) {
+    // empty PySet into HashSet
     let mut curr = game::Board::new();
     for _ in 0..board.len() {
-        let pt: (isize, isize) = board.pop().unwrap().extract(py).unwrap();
+        let pt: (isize, isize) = board.pop().unwrap().extract(py_gil).unwrap();
         curr.insert(pt);
     }
 
@@ -41,6 +43,7 @@ fn do_step(py: Python, board: &PySet, ntimes: usize) {
         next = game::next_generation(&next);
     }
 
+    // load HashSet values back into PySet
     for elem in next {
         board.add(elem).unwrap();
     }
