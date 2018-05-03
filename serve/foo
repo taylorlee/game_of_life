@@ -1,0 +1,10 @@
+//let board: game::Board = serde_json::from_slice(req.body().as_ref().into()).unwrap();
+//let next = game::next_generation(&board);
+//let resp = serde_json::to_string(&next).unwrap();
+//
+//                //let acorn = serde_json::to_string(&game::setup()).unwrap();
+                //let transform = req.body().map(to_upper);
+                //let body: Box<Stream<Item=_,Error=_>> = Box::new(transform);
+                //response.set_body(body);
+
+
