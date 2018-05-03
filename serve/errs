@@ -1,0 +1,10 @@
+
+error[E0618]: expected function, found enum variant `Ok`
+  --> src/main.rs:56:42
+   |
+56 |     let server = Http::new().bind(&addr, Ok(Echo)).unwrap();
+   |                                          ^^^^^^^^ not a function
+help: `Ok` is a unit variant, you need to write it without the parenthesis
+   |
+56 |     let server = Http::new().bind(&addr, Ok).unwrap();
+   | 
