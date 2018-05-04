@@ -1,54 +1,62 @@
-
 extern crate game;
 
-extern crate hyper;
 extern crate futures;
-
+extern crate hyper;
 extern crate serde;
 extern crate serde_json;
 
-use futures::future::*;
+use futures::future::Future;
 use futures::Stream;
 
-use hyper::server::{Http, Request, Response, Service, const_service};
-use hyper::*;
+use hyper::{Chunk, Error, Method, StatusCode};
+use hyper::server::{const_service, service_fn, Http, Request, Response};
 
-struct RPC;
-
-impl Service for RPC {
-    type Request = Request;
-    type Response = Response;
-    type Error = hyper::Error;
-    type Future = Box<Future<Item=Self::Response, Error=Self::Error>>;
-
-    fn call(&self, req: Request) -> Self::Future {
-         match (req.method(), req.path()) {
-            (&Method::Get, "/setup/") => {
-                let acorn = serde_json::to_string(&game::setup()).unwrap();
-
-                Box::new(ok(Response::new().with_body(acorn)))
-            },
-            (&Method::Post, "/step/") => {
-                Box::new(req.body().concat2().map(|chunk| {
-                    let body = chunk.iter()
-                        .cloned()
-                        .collect::<Vec<u8>>();
-                    let board: game::Board = serde_json::from_slice(&body).unwrap();
-                    let next = game::next_generation(&board);
-                    let resp = serde_json::to_string(&next).unwrap();
-
-                    Response::new().with_body(resp)
-                }))
-            },
-            _ => {
-                Box::new(ok(Response::new().with_status(StatusCode::NotFound)))
-            },
-         }
-    }
-}
+type RpcFuture = Box<Future<Item = Response, Error = Error>>;
+type Data = Chunk;
 
 fn main() {
     let addr = "127.0.0.1:3000".parse().unwrap();
-    let server = Http::new().bind(&addr, const_service(RPC)).unwrap();
+    let service = const_service(service_fn(router));
+    let server = Http::new().bind(&addr, service).unwrap();
     server.run().unwrap();
+}
+
+fn router(req: Request) -> RpcFuture {
+    return match (req.method(), req.path()) {
+        (&Method::Get, "/setup/") => handler(req, setup),
+        (&Method::Post, "/step/") => handler(req, step),
+        (&Method::Post, "/step/many/") => handler(req, step_many),
+        _ => handler(req, not_found),
+    };
+}
+
+fn handler(req: Request, func: fn(Data) -> Response) -> RpcFuture {
+    return Box::new(req.body().concat2().map(func));
+}
+
+fn not_found(_: Data) -> Response {
+    return Response::new().with_status(StatusCode::NotFound);
+}
+
+fn setup(_: Data) -> Response {
+    let acorn = serde_json::to_string(&game::setup()).unwrap();
+    return Response::new().with_body(acorn);
+}
+
+fn step(data: Data) -> Response {
+    let body = data.iter().cloned().collect::<Vec<u8>>();
+    let board: game::Board = serde_json::from_slice(&body).unwrap();
+    let next = game::next_generation(&board);
+    let resp = serde_json::to_string(&next).unwrap();
+    return Response::new().with_body(resp);
+}
+
+fn step_many(data: Data) -> Response {
+    let body = data.iter().cloned().collect::<Vec<u8>>();
+    let (ntimes, mut board): (usize, game::Board) = serde_json::from_slice(&body).unwrap();
+    for _ in 0..ntimes {
+        board = game::next_generation(&board);
+    }
+    let resp = serde_json::to_string(&board).unwrap();
+    return Response::new().with_body(resp);
 }
