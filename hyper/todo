@@ -1,4 +1,0 @@
-
-uppering works
-next try reversing w/ buffer via concat
-then slice -> str && serde json

@@ -1,0 +1,41 @@
+
+WITH GC
+SETUP
+rpc:   2.5582
+pyo3:  0.0022
+
+STEP: 10000 loops of step_1
+rpc:   42.5543
+pyo3:  7.493
+
+STEP: 1000 loops of step_10
+rpc:   10.3476
+pyo3:  6.1858
+
+STEP: 100 loops of step_100
+rpc:   6.3989
+pyo3:  6.1083
+
+STEP: 10 loops of step_1000
+rpc:   6.1778
+pyo3:  5.9927
+WITHOUT GC
+SETUP
+rpc:   2.5264
+pyo3:  0.0022
+
+STEP: 10000 loops of step_1
+rpc:   42.2256
+pyo3:  7.4767
+
+STEP: 1000 loops of step_10
+rpc:   10.3485
+pyo3:  6.2909
+
+STEP: 100 loops of step_100
+rpc:   6.3533
+pyo3:  6.0051
+
+STEP: 10 loops of step_1000
+rpc:   6.0834
+pyo3:  6.0462
