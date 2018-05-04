@@ -38,16 +38,23 @@ def test():
 
 def bench():
     print('SETUP')
-    print(timeit.timeit(rpc_setup, number = 1000))
-    print(timeit.timeit(gol_py.setup, number = 1000))
-    
+    timer(rpc_setup, 1000)
+    timer(gol_py.setup, 1000)
+
     print('STEP')
-    a,b = rpc_setup(), gol_py.setup()
-    print(timeit.timeit(lambda: rpc_step(a), number=1000))
-    print(timeit.timeit(lambda: gol_py.step(b), number=1000))
+    a, b = rpc_setup(), gol_py.setup()
+    timer(lambda: rpc_step(a), 1000)
+    timer(lambda: gol_py.step(b), 1000)
 
     print('STEP 100')
-    print(timeit.timeit(lambda: rpc_step(a,ntimes=100), number=10))
-    print(timeit.timeit(lambda: gol_py.step(b,ntimes=100), number=10))
+    timer(lambda: rpc_step(a, ntimes=100), 100)
+    timer(lambda: gol_py.step(b, ntimes=100), 100)
 
+    print('STEP 1000')
+    timer(lambda: rpc_step(a, ntimes=1000), 10)
+    timer(lambda: gol_py.step(b, ntimes=1000), 10)
 
+    assert (a == b)
+
+def timer(fn, n):
+    print(timeit.timeit(fn, 'gc.enable()', number=n))
