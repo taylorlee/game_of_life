@@ -5,32 +5,32 @@ extern crate hyper;
 extern crate serde;
 extern crate serde_json;
 
-use futures::future::Future;
-use futures::Stream;
+use futures::{Stream, future::Future};
+use hyper::{Method, StatusCode, server::{const_service, service_fn, Http, Request, Response}};
 
-use hyper::{Chunk, Error, Method, StatusCode};
-use hyper::server::{const_service, service_fn, Http, Request, Response};
-
-type RpcFuture = Box<Future<Item = Response, Error = Error>>;
-type Data = Chunk;
+type RpcFuture = Box<Future<Item = Response, Error = hyper::Error>>;
+type Data = hyper::Chunk;
+type Responder = fn(Data) -> Response;
 
 fn main() {
     let addr = "127.0.0.1:3000".parse().unwrap();
-    let service = const_service(service_fn(router));
+    let service = const_service(service_fn(rpc_service));
     let server = Http::new().bind(&addr, service).unwrap();
     server.run().unwrap();
 }
 
-fn router(req: Request) -> RpcFuture {
-    match (req.method(), req.path()) {
-        (&Method::Get, "/setup/") => handle(req, setup),
-        (&Method::Post, "/step/") => handle(req, step),
-        _ => handle(req, not_found),
-    }
+fn rpc_service(req: Request) -> RpcFuture {
+    let responder = router(&req);
+
+    Box::new(req.body().concat2().map(responder))
 }
 
-fn handle(req: Request, func: fn(Data) -> Response) -> RpcFuture {
-    Box::new(req.body().concat2().map(func))
+fn router(req: &Request) -> Responder {
+    match (req.method(), req.path()) {
+        (&Method::Get, "/setup/") => setup,
+        (&Method::Post, "/step/") => step,
+        _ => not_found,
+    }
 }
 
 fn not_found(_: Data) -> Response {
